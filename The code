@@ -1,0 +1,116 @@
+int pinA = 2;
+int pinB = 3;
+int pinC = 4;
+int pinD = 5;
+int pinE = 6;
+int pinF = 7;
+int pinG = 8;
+int D1 = 9;
+int D2 = 10;
+int D3 = 11;
+int D4 = 12;
+int hours=19;
+int tempPin = 1;
+bool buttonState=0;
+const int buttonPin = 13;  
+int minutes=2;
+unsigned long PrevTime;
+unsigned long CurrentTime;
+void CheckMiunute(){
+CurrentTime=millis();
+if(CurrentTime-PrevTime>=60000){
+  minutes++;
+  PrevTime=CurrentTime;
+} 
+}
+
+  
+int arr[]={126,48,109,121,51,91,95,112,127,123,78};
+void DisplayDigit(int number,int D){
+  for(int i=12;i>=9;i--)
+ if(i==D)
+ digitalWrite(i,1);
+else
+digitalWrite(i,0);
+
+  int x=arr[number];
+for(int i=8;i>=2;i--){
+digitalWrite(i,!(x&1)); 
+x>>=1;
+}
+delay(1);
+}
+void Clock(){
+ int MIN=minutes;
+ int hour=hours;
+ for(int i=12;i>=11;i--){
+  DisplayDigit(MIN%10,i);
+  MIN/=10;
+ }
+ for(int i=10;i>=9;i--){
+  DisplayDigit(hour%10,i);
+  hour/=10;
+ }
+if(minutes==60){
+  hours++;
+  minutes=0;
+  if(hours==24){
+    hours=0;
+  }
+}
+}
+int CE;
+bool State=1;
+void readTemp(){
+int  val = analogRead(tempPin);
+  float mv = ( val/1024.0)*5000;
+   CE = mv/10;
+}
+void DisplayTemp(){
+ buttonState = digitalRead(buttonPin);
+ if(buttonState){
+  if(State){
+    readTemp();
+    State=0;
+  }
+     digitalWrite(12,HIGH);
+     digitalWrite(11,0);
+     digitalWrite(10,0);
+     digitalWrite(9,0);
+     DisplayDigit(10,12);
+     int d=CE;
+     for(int i=11;i>=10;i--){
+      DisplayDigit(d%10,i);
+      d/=10;
+     }
+
+ }
+ }
+// the setup routine runs once when you press reset:
+void setup() {                
+  // initialize the digital pins as outputs.
+  Serial.begin(9600);
+  pinMode(pinA, OUTPUT);     
+  pinMode(pinB, OUTPUT);     
+  pinMode(pinC, OUTPUT);     
+  pinMode(pinD, OUTPUT);     
+  pinMode(pinE, OUTPUT);     
+  pinMode(pinF, OUTPUT);     
+  pinMode(pinG, OUTPUT);   
+  pinMode(D1, OUTPUT);  
+  pinMode(D2, OUTPUT);  
+  pinMode(D3, OUTPUT);  
+  pinMode(D4, OUTPUT);  
+  pinMode( buttonPin,INPUT);
+  PrevTime=millis();
+}
+
+// the loop routine runs over and over again forever:
+void loop() { 
+  if(digitalRead( buttonPin)==0){
+  Clock();
+  State=1;
+  }
+   CheckMiunute();
+   DisplayTemp();
+}
